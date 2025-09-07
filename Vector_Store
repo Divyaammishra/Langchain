@@ -1,0 +1,652 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOtvNRfZGH02E/tc1oXMZEU"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "yT2pQSKXutdC",
+        "outputId": "07ed1dd0-c2b7-4c57-f342-eb537344db68"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: langchain in /usr/local/lib/python3.12/dist-packages (0.3.27)\n",
+            "Collecting chromadb\n",
+            "  Downloading chromadb-1.0.20-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)\n",
+            "Requirement already satisfied: tiktoken in /usr/local/lib/python3.12/dist-packages (0.11.0)\n",
+            "Collecting pypdf\n",
+            "  Downloading pypdf-6.0.0-py3-none-any.whl.metadata (7.1 kB)\n",
+            "Collecting langchain-community\n",
+            "  Downloading langchain_community-0.3.29-py3-none-any.whl.metadata (2.9 kB)\n",
+            "Collecting langchain-huggingface\n",
+            "  Downloading langchain_huggingface-0.3.1-py3-none-any.whl.metadata (996 bytes)\n",
+            "Requirement already satisfied: sentence-transformers in /usr/local/lib/python3.12/dist-packages (5.1.0)\n",
+            "Requirement already satisfied: langchain-core<1.0.0,>=0.3.72 in /usr/local/lib/python3.12/dist-packages (from langchain) (0.3.75)\n",
+            "Requirement already satisfied: langchain-text-splitters<1.0.0,>=0.3.9 in /usr/local/lib/python3.12/dist-packages (from langchain) (0.3.11)\n",
+            "Requirement already satisfied: langsmith>=0.1.17 in /usr/local/lib/python3.12/dist-packages (from langchain) (0.4.23)\n",
+            "Requirement already satisfied: pydantic<3.0.0,>=2.7.4 in /usr/local/lib/python3.12/dist-packages (from langchain) (2.11.7)\n",
+            "Requirement already satisfied: SQLAlchemy<3,>=1.4 in /usr/local/lib/python3.12/dist-packages (from langchain) (2.0.43)\n",
+            "Requirement already satisfied: requests<3,>=2 in /usr/local/lib/python3.12/dist-packages (from langchain) (2.32.4)\n",
+            "Requirement already satisfied: PyYAML>=5.3 in /usr/local/lib/python3.12/dist-packages (from langchain) (6.0.2)\n",
+            "Requirement already satisfied: build>=1.0.3 in /usr/local/lib/python3.12/dist-packages (from chromadb) (1.3.0)\n",
+            "Collecting pybase64>=1.4.1 (from chromadb)\n",
+            "  Downloading pybase64-1.4.2-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl.metadata (8.7 kB)\n",
+            "Requirement already satisfied: uvicorn>=0.18.3 in /usr/local/lib/python3.12/dist-packages (from uvicorn[standard]>=0.18.3->chromadb) (0.35.0)\n",
+            "Requirement already satisfied: numpy>=1.22.5 in /usr/local/lib/python3.12/dist-packages (from chromadb) (2.0.2)\n",
+            "Collecting posthog<6.0.0,>=2.4.0 (from chromadb)\n",
+            "  Downloading posthog-5.4.0-py3-none-any.whl.metadata (5.7 kB)\n",
+            "Requirement already satisfied: typing-extensions>=4.5.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (4.15.0)\n",
+            "Collecting onnxruntime>=1.14.1 (from chromadb)\n",
+            "  Downloading onnxruntime-1.22.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (4.9 kB)\n",
+            "Requirement already satisfied: opentelemetry-api>=1.2.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (1.36.0)\n",
+            "Collecting opentelemetry-exporter-otlp-proto-grpc>=1.2.0 (from chromadb)\n",
+            "  Downloading opentelemetry_exporter_otlp_proto_grpc-1.36.0-py3-none-any.whl.metadata (2.4 kB)\n",
+            "Requirement already satisfied: opentelemetry-sdk>=1.2.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (1.36.0)\n",
+            "Requirement already satisfied: tokenizers>=0.13.2 in /usr/local/lib/python3.12/dist-packages (from chromadb) (0.22.0)\n",
+            "Collecting pypika>=0.48.9 (from chromadb)\n",
+            "  Downloading PyPika-0.48.9.tar.gz (67 kB)\n",
+            "\u001b[2K     \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m67.3/67.3 kB\u001b[0m \u001b[31m4.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h  Installing build dependencies ... \u001b[?25l\u001b[?25hdone\n",
+            "  Getting requirements to build wheel ... \u001b[?25l\u001b[?25hdone\n",
+            "  Preparing metadata (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "Requirement already satisfied: tqdm>=4.65.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (4.67.1)\n",
+            "Requirement already satisfied: overrides>=7.3.1 in /usr/local/lib/python3.12/dist-packages (from chromadb) (7.7.0)\n",
+            "Requirement already satisfied: importlib-resources in /usr/local/lib/python3.12/dist-packages (from chromadb) (6.5.2)\n",
+            "Requirement already satisfied: grpcio>=1.58.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (1.74.0)\n",
+            "Collecting bcrypt>=4.0.1 (from chromadb)\n",
+            "  Downloading bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (10 kB)\n",
+            "Requirement already satisfied: typer>=0.9.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (0.17.3)\n",
+            "Collecting kubernetes>=28.1.0 (from chromadb)\n",
+            "  Downloading kubernetes-33.1.0-py2.py3-none-any.whl.metadata (1.7 kB)\n",
+            "Requirement already satisfied: tenacity>=8.2.3 in /usr/local/lib/python3.12/dist-packages (from chromadb) (8.5.0)\n",
+            "Collecting mmh3>=4.0.1 (from chromadb)\n",
+            "  Downloading mmh3-5.2.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (14 kB)\n",
+            "Requirement already satisfied: orjson>=3.9.12 in /usr/local/lib/python3.12/dist-packages (from chromadb) (3.11.3)\n",
+            "Requirement already satisfied: httpx>=0.27.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (0.28.1)\n",
+            "Requirement already satisfied: rich>=10.11.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (13.9.4)\n",
+            "Requirement already satisfied: jsonschema>=4.19.0 in /usr/local/lib/python3.12/dist-packages (from chromadb) (4.25.1)\n",
+            "Requirement already satisfied: regex>=2022.1.18 in /usr/local/lib/python3.12/dist-packages (from tiktoken) (2024.11.6)\n",
+            "Collecting requests<3,>=2 (from langchain)\n",
+            "  Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)\n",
+            "Requirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /usr/local/lib/python3.12/dist-packages (from langchain-community) (3.12.15)\n",
+            "Collecting dataclasses-json<0.7,>=0.6.7 (from langchain-community)\n",
+            "  Downloading dataclasses_json-0.6.7-py3-none-any.whl.metadata (25 kB)\n",
+            "Requirement already satisfied: pydantic-settings<3.0.0,>=2.10.1 in /usr/local/lib/python3.12/dist-packages (from langchain-community) (2.10.1)\n",
+            "Requirement already satisfied: httpx-sse<1.0.0,>=0.4.0 in /usr/local/lib/python3.12/dist-packages (from langchain-community) (0.4.1)\n",
+            "Requirement already satisfied: huggingface-hub>=0.33.4 in /usr/local/lib/python3.12/dist-packages (from langchain-huggingface) (0.34.4)\n",
+            "Requirement already satisfied: transformers<5.0.0,>=4.41.0 in /usr/local/lib/python3.12/dist-packages (from sentence-transformers) (4.56.0)\n",
+            "Requirement already satisfied: torch>=1.11.0 in /usr/local/lib/python3.12/dist-packages (from sentence-transformers) (2.8.0+cu126)\n",
+            "Requirement already satisfied: scikit-learn in /usr/local/lib/python3.12/dist-packages (from sentence-transformers) (1.6.1)\n",
+            "Requirement already satisfied: scipy in /usr/local/lib/python3.12/dist-packages (from sentence-transformers) (1.16.1)\n",
+            "Requirement already satisfied: Pillow in /usr/local/lib/python3.12/dist-packages (from sentence-transformers) (11.3.0)\n",
+            "Requirement already satisfied: aiohappyeyeballs>=2.5.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (2.6.1)\n",
+            "Requirement already satisfied: aiosignal>=1.4.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (1.4.0)\n",
+            "Requirement already satisfied: attrs>=17.3.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (25.3.0)\n",
+            "Requirement already satisfied: frozenlist>=1.1.1 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (1.7.0)\n",
+            "Requirement already satisfied: multidict<7.0,>=4.5 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (6.6.4)\n",
+            "Requirement already satisfied: propcache>=0.2.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (0.3.2)\n",
+            "Requirement already satisfied: yarl<2.0,>=1.17.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain-community) (1.20.1)\n",
+            "Requirement already satisfied: packaging>=19.1 in /usr/local/lib/python3.12/dist-packages (from build>=1.0.3->chromadb) (25.0)\n",
+            "Requirement already satisfied: pyproject_hooks in /usr/local/lib/python3.12/dist-packages (from build>=1.0.3->chromadb) (1.2.0)\n",
+            "Collecting marshmallow<4.0.0,>=3.18.0 (from dataclasses-json<0.7,>=0.6.7->langchain-community)\n",
+            "  Downloading marshmallow-3.26.1-py3-none-any.whl.metadata (7.3 kB)\n",
+            "Collecting typing-inspect<1,>=0.4.0 (from dataclasses-json<0.7,>=0.6.7->langchain-community)\n",
+            "  Downloading typing_inspect-0.9.0-py3-none-any.whl.metadata (1.5 kB)\n",
+            "Requirement already satisfied: anyio in /usr/local/lib/python3.12/dist-packages (from httpx>=0.27.0->chromadb) (4.10.0)\n",
+            "Requirement already satisfied: certifi in /usr/local/lib/python3.12/dist-packages (from httpx>=0.27.0->chromadb) (2025.8.3)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.12/dist-packages (from httpx>=0.27.0->chromadb) (1.0.9)\n",
+            "Requirement already satisfied: idna in /usr/local/lib/python3.12/dist-packages (from httpx>=0.27.0->chromadb) (3.10)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.12/dist-packages (from httpcore==1.*->httpx>=0.27.0->chromadb) (0.16.0)\n",
+            "Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from huggingface-hub>=0.33.4->langchain-huggingface) (3.19.1)\n",
+            "Requirement already satisfied: fsspec>=2023.5.0 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub>=0.33.4->langchain-huggingface) (2025.3.0)\n",
+            "Requirement already satisfied: hf-xet<2.0.0,>=1.1.3 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub>=0.33.4->langchain-huggingface) (1.1.9)\n",
+            "Requirement already satisfied: jsonschema-specifications>=2023.03.6 in /usr/local/lib/python3.12/dist-packages (from jsonschema>=4.19.0->chromadb) (2025.4.1)\n",
+            "Requirement already satisfied: referencing>=0.28.4 in /usr/local/lib/python3.12/dist-packages (from jsonschema>=4.19.0->chromadb) (0.36.2)\n",
+            "Requirement already satisfied: rpds-py>=0.7.1 in /usr/local/lib/python3.12/dist-packages (from jsonschema>=4.19.0->chromadb) (0.27.1)\n",
+            "Requirement already satisfied: six>=1.9.0 in /usr/local/lib/python3.12/dist-packages (from kubernetes>=28.1.0->chromadb) (1.17.0)\n",
+            "Requirement already satisfied: python-dateutil>=2.5.3 in /usr/local/lib/python3.12/dist-packages (from kubernetes>=28.1.0->chromadb) (2.9.0.post0)\n",
+            "Requirement already satisfied: google-auth>=1.0.1 in /usr/local/lib/python3.12/dist-packages (from kubernetes>=28.1.0->chromadb) (2.38.0)\n",
+            "Requirement already satisfied: websocket-client!=0.40.0,!=0.41.*,!=0.42.*,>=0.32.0 in /usr/local/lib/python3.12/dist-packages (from kubernetes>=28.1.0->chromadb) (1.8.0)\n",
+            "Requirement already satisfied: requests-oauthlib in /usr/local/lib/python3.12/dist-packages (from kubernetes>=28.1.0->chromadb) (2.0.0)\n",
+            "Requirement already satisfied: oauthlib>=3.2.2 in /usr/local/lib/python3.12/dist-packages (from kubernetes>=28.1.0->chromadb) (3.3.1)\n",
+            "Requirement already satisfied: urllib3>=1.24.2 in /usr/local/lib/python3.12/dist-packages (from kubernetes>=28.1.0->chromadb) (2.5.0)\n",
+            "Collecting durationpy>=0.7 (from kubernetes>=28.1.0->chromadb)\n",
+            "  Downloading durationpy-0.10-py3-none-any.whl.metadata (340 bytes)\n",
+            "Requirement already satisfied: jsonpatch<2.0,>=1.33 in /usr/local/lib/python3.12/dist-packages (from langchain-core<1.0.0,>=0.3.72->langchain) (1.33)\n",
+            "Requirement already satisfied: requests-toolbelt>=1.0.0 in /usr/local/lib/python3.12/dist-packages (from langsmith>=0.1.17->langchain) (1.0.0)\n",
+            "Requirement already satisfied: zstandard>=0.23.0 in /usr/local/lib/python3.12/dist-packages (from langsmith>=0.1.17->langchain) (0.24.0)\n",
+            "Collecting coloredlogs (from onnxruntime>=1.14.1->chromadb)\n",
+            "  Downloading coloredlogs-15.0.1-py2.py3-none-any.whl.metadata (12 kB)\n",
+            "Requirement already satisfied: flatbuffers in /usr/local/lib/python3.12/dist-packages (from onnxruntime>=1.14.1->chromadb) (25.2.10)\n",
+            "Requirement already satisfied: protobuf in /usr/local/lib/python3.12/dist-packages (from onnxruntime>=1.14.1->chromadb) (5.29.5)\n",
+            "Requirement already satisfied: sympy in /usr/local/lib/python3.12/dist-packages (from onnxruntime>=1.14.1->chromadb) (1.13.3)\n",
+            "Requirement already satisfied: importlib-metadata<8.8.0,>=6.0 in /usr/local/lib/python3.12/dist-packages (from opentelemetry-api>=1.2.0->chromadb) (8.7.0)\n",
+            "Requirement already satisfied: googleapis-common-protos~=1.57 in /usr/local/lib/python3.12/dist-packages (from opentelemetry-exporter-otlp-proto-grpc>=1.2.0->chromadb) (1.70.0)\n",
+            "Collecting opentelemetry-exporter-otlp-proto-common==1.36.0 (from opentelemetry-exporter-otlp-proto-grpc>=1.2.0->chromadb)\n",
+            "  Downloading opentelemetry_exporter_otlp_proto_common-1.36.0-py3-none-any.whl.metadata (1.8 kB)\n",
+            "Collecting opentelemetry-proto==1.36.0 (from opentelemetry-exporter-otlp-proto-grpc>=1.2.0->chromadb)\n",
+            "  Downloading opentelemetry_proto-1.36.0-py3-none-any.whl.metadata (2.3 kB)\n",
+            "Requirement already satisfied: opentelemetry-semantic-conventions==0.57b0 in /usr/local/lib/python3.12/dist-packages (from opentelemetry-sdk>=1.2.0->chromadb) (0.57b0)\n",
+            "Collecting backoff>=1.10.0 (from posthog<6.0.0,>=2.4.0->chromadb)\n",
+            "  Downloading backoff-2.2.1-py3-none-any.whl.metadata (14 kB)\n",
+            "Requirement already satisfied: distro>=1.5.0 in /usr/local/lib/python3.12/dist-packages (from posthog<6.0.0,>=2.4.0->chromadb) (1.9.0)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.12/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.12/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (2.33.2)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.12/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (0.4.1)\n",
+            "Requirement already satisfied: python-dotenv>=0.21.0 in /usr/local/lib/python3.12/dist-packages (from pydantic-settings<3.0.0,>=2.10.1->langchain-community) (1.1.1)\n",
+            "Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.12/dist-packages (from requests<3,>=2->langchain) (3.4.3)\n",
+            "Requirement already satisfied: markdown-it-py>=2.2.0 in /usr/local/lib/python3.12/dist-packages (from rich>=10.11.0->chromadb) (4.0.0)\n",
+            "Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /usr/local/lib/python3.12/dist-packages (from rich>=10.11.0->chromadb) (2.19.2)\n",
+            "Requirement already satisfied: greenlet>=1 in /usr/local/lib/python3.12/dist-packages (from SQLAlchemy<3,>=1.4->langchain) (3.2.4)\n",
+            "Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (75.2.0)\n",
+            "Requirement already satisfied: networkx in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (3.5)\n",
+            "Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (3.1.6)\n",
+            "Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.6.77 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (12.6.77)\n",
+            "Requirement already satisfied: nvidia-cuda-runtime-cu12==12.6.77 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (12.6.77)\n",
+            "Requirement already satisfied: nvidia-cuda-cupti-cu12==12.6.80 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (12.6.80)\n",
+            "Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (9.10.2.21)\n",
+            "Requirement already satisfied: nvidia-cublas-cu12==12.6.4.1 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (12.6.4.1)\n",
+            "Requirement already satisfied: nvidia-cufft-cu12==11.3.0.4 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (11.3.0.4)\n",
+            "Requirement already satisfied: nvidia-curand-cu12==10.3.7.77 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (10.3.7.77)\n",
+            "Requirement already satisfied: nvidia-cusolver-cu12==11.7.1.2 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (11.7.1.2)\n",
+            "Requirement already satisfied: nvidia-cusparse-cu12==12.5.4.2 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (12.5.4.2)\n",
+            "Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (0.7.1)\n",
+            "Requirement already satisfied: nvidia-nccl-cu12==2.27.3 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (2.27.3)\n",
+            "Requirement already satisfied: nvidia-nvtx-cu12==12.6.77 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (12.6.77)\n",
+            "Requirement already satisfied: nvidia-nvjitlink-cu12==12.6.85 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (12.6.85)\n",
+            "Requirement already satisfied: nvidia-cufile-cu12==1.11.1.6 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (1.11.1.6)\n",
+            "Requirement already satisfied: triton==3.4.0 in /usr/local/lib/python3.12/dist-packages (from torch>=1.11.0->sentence-transformers) (3.4.0)\n",
+            "Requirement already satisfied: safetensors>=0.4.3 in /usr/local/lib/python3.12/dist-packages (from transformers<5.0.0,>=4.41.0->sentence-transformers) (0.6.2)\n",
+            "Requirement already satisfied: click>=8.0.0 in /usr/local/lib/python3.12/dist-packages (from typer>=0.9.0->chromadb) (8.2.1)\n",
+            "Requirement already satisfied: shellingham>=1.3.0 in /usr/local/lib/python3.12/dist-packages (from typer>=0.9.0->chromadb) (1.5.4)\n",
+            "Collecting httptools>=0.6.3 (from uvicorn[standard]>=0.18.3->chromadb)\n",
+            "  Downloading httptools-0.6.4-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.6 kB)\n",
+            "Collecting uvloop>=0.15.1 (from uvicorn[standard]>=0.18.3->chromadb)\n",
+            "  Downloading uvloop-0.21.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)\n",
+            "Collecting watchfiles>=0.13 (from uvicorn[standard]>=0.18.3->chromadb)\n",
+            "  Downloading watchfiles-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)\n",
+            "Requirement already satisfied: websockets>=10.4 in /usr/local/lib/python3.12/dist-packages (from uvicorn[standard]>=0.18.3->chromadb) (15.0.1)\n",
+            "Requirement already satisfied: joblib>=1.2.0 in /usr/local/lib/python3.12/dist-packages (from scikit-learn->sentence-transformers) (1.5.2)\n",
+            "Requirement already satisfied: threadpoolctl>=3.1.0 in /usr/local/lib/python3.12/dist-packages (from scikit-learn->sentence-transformers) (3.6.0)\n",
+            "Requirement already satisfied: cachetools<6.0,>=2.0.0 in /usr/local/lib/python3.12/dist-packages (from google-auth>=1.0.1->kubernetes>=28.1.0->chromadb) (5.5.2)\n",
+            "Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.12/dist-packages (from google-auth>=1.0.1->kubernetes>=28.1.0->chromadb) (0.4.2)\n",
+            "Requirement already satisfied: rsa<5,>=3.1.4 in /usr/local/lib/python3.12/dist-packages (from google-auth>=1.0.1->kubernetes>=28.1.0->chromadb) (4.9.1)\n",
+            "Requirement already satisfied: zipp>=3.20 in /usr/local/lib/python3.12/dist-packages (from importlib-metadata<8.8.0,>=6.0->opentelemetry-api>=1.2.0->chromadb) (3.23.0)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.12/dist-packages (from jsonpatch<2.0,>=1.33->langchain-core<1.0.0,>=0.3.72->langchain) (3.0.0)\n",
+            "Requirement already satisfied: mdurl~=0.1 in /usr/local/lib/python3.12/dist-packages (from markdown-it-py>=2.2.0->rich>=10.11.0->chromadb) (0.1.2)\n",
+            "Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy->onnxruntime>=1.14.1->chromadb) (1.3.0)\n",
+            "Collecting mypy-extensions>=0.3.0 (from typing-inspect<1,>=0.4.0->dataclasses-json<0.7,>=0.6.7->langchain-community)\n",
+            "  Downloading mypy_extensions-1.1.0-py3-none-any.whl.metadata (1.1 kB)\n",
+            "Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.12/dist-packages (from anyio->httpx>=0.27.0->chromadb) (1.3.1)\n",
+            "Collecting humanfriendly>=9.1 (from coloredlogs->onnxruntime>=1.14.1->chromadb)\n",
+            "  Downloading humanfriendly-10.0-py2.py3-none-any.whl.metadata (9.2 kB)\n",
+            "Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch>=1.11.0->sentence-transformers) (3.0.2)\n",
+            "Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.12/dist-packages (from pyasn1-modules>=0.2.1->google-auth>=1.0.1->kubernetes>=28.1.0->chromadb) (0.6.1)\n",
+            "Downloading chromadb-1.0.20-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (19.8 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m19.8/19.8 MB\u001b[0m \u001b[31m79.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading pypdf-6.0.0-py3-none-any.whl (310 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m310.5/310.5 kB\u001b[0m \u001b[31m20.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading langchain_community-0.3.29-py3-none-any.whl (2.5 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m2.5/2.5 MB\u001b[0m \u001b[31m80.6 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading langchain_huggingface-0.3.1-py3-none-any.whl (27 kB)\n",
+            "Downloading bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl (284 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m284.2/284.2 kB\u001b[0m \u001b[31m19.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading dataclasses_json-0.6.7-py3-none-any.whl (28 kB)\n",
+            "Downloading kubernetes-33.1.0-py2.py3-none-any.whl (1.9 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m1.9/1.9 MB\u001b[0m \u001b[31m62.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading mmh3-5.2.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (103 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m103.3/103.3 kB\u001b[0m \u001b[31m7.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading onnxruntime-1.22.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.5 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m16.5/16.5 MB\u001b[0m \u001b[31m84.7 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading opentelemetry_exporter_otlp_proto_grpc-1.36.0-py3-none-any.whl (18 kB)\n",
+            "Downloading opentelemetry_exporter_otlp_proto_common-1.36.0-py3-none-any.whl (18 kB)\n",
+            "Downloading opentelemetry_proto-1.36.0-py3-none-any.whl (72 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m72.5/72.5 kB\u001b[0m \u001b[31m4.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading posthog-5.4.0-py3-none-any.whl (105 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m105.4/105.4 kB\u001b[0m \u001b[31m7.5 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading pybase64-1.4.2-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl (71 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m71.6/71.6 kB\u001b[0m \u001b[31m4.6 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading requests-2.32.5-py3-none-any.whl (64 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m64.7/64.7 kB\u001b[0m \u001b[31m4.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading backoff-2.2.1-py3-none-any.whl (15 kB)\n",
+            "Downloading durationpy-0.10-py3-none-any.whl (3.9 kB)\n",
+            "Downloading httptools-0.6.4-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (510 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m510.8/510.8 kB\u001b[0m \u001b[31m32.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading marshmallow-3.26.1-py3-none-any.whl (50 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m50.9/50.9 kB\u001b[0m \u001b[31m3.7 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading typing_inspect-0.9.0-py3-none-any.whl (8.8 kB)\n",
+            "Downloading uvloop-0.21.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.7 MB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m4.7/4.7 MB\u001b[0m \u001b[31m95.9 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading watchfiles-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (452 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m452.2/452.2 kB\u001b[0m \u001b[31m23.7 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading coloredlogs-15.0.1-py2.py3-none-any.whl (46 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m46.0/46.0 kB\u001b[0m \u001b[31m2.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading humanfriendly-10.0-py2.py3-none-any.whl (86 kB)\n",
+            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m86.8/86.8 kB\u001b[0m \u001b[31m6.2 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25hDownloading mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)\n",
+            "Building wheels for collected packages: pypika\n",
+            "  Building wheel for pypika (pyproject.toml) ... \u001b[?25l\u001b[?25hdone\n",
+            "  Created wheel for pypika: filename=pypika-0.48.9-py2.py3-none-any.whl size=53803 sha256=81a3a395a645064fbc041e32b41e9b610f248b2cec96f30ff446363a2c9e7fda\n",
+            "  Stored in directory: /root/.cache/pip/wheels/d5/3d/69/8d68d249cd3de2584f226e27fd431d6344f7d70fd856ebd01b\n",
+            "Successfully built pypika\n",
+            "Installing collected packages: pypika, durationpy, uvloop, requests, pypdf, pybase64, opentelemetry-proto, mypy-extensions, mmh3, marshmallow, humanfriendly, httptools, bcrypt, backoff, watchfiles, typing-inspect, posthog, opentelemetry-exporter-otlp-proto-common, coloredlogs, onnxruntime, kubernetes, dataclasses-json, opentelemetry-exporter-otlp-proto-grpc, langchain-huggingface, chromadb, langchain-community\n",
+            "  Attempting uninstall: requests\n",
+            "    Found existing installation: requests 2.32.4\n",
+            "    Uninstalling requests-2.32.4:\n",
+            "      Successfully uninstalled requests-2.32.4\n",
+            "\u001b[31mERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n",
+            "google-colab 1.0.0 requires requests==2.32.4, but you have requests 2.32.5 which is incompatible.\u001b[0m\u001b[31m\n",
+            "\u001b[0mSuccessfully installed backoff-2.2.1 bcrypt-4.3.0 chromadb-1.0.20 coloredlogs-15.0.1 dataclasses-json-0.6.7 durationpy-0.10 httptools-0.6.4 humanfriendly-10.0 kubernetes-33.1.0 langchain-community-0.3.29 langchain-huggingface-0.3.1 marshmallow-3.26.1 mmh3-5.2.0 mypy-extensions-1.1.0 onnxruntime-1.22.1 opentelemetry-exporter-otlp-proto-common-1.36.0 opentelemetry-exporter-otlp-proto-grpc-1.36.0 opentelemetry-proto-1.36.0 posthog-5.4.0 pybase64-1.4.2 pypdf-6.0.0 pypika-0.48.9 requests-2.32.5 typing-inspect-0.9.0 uvloop-0.21.0 watchfiles-1.1.0\n"
+          ]
+        }
+      ],
+      "source": [
+        "pip install langchain chromadb tiktoken pypdf langchain-community langchain-huggingface sentence-transformers"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_huggingface import HuggingFaceEmbeddings\n",
+        "from langchain.vectorstores import Chroma"
+      ],
+      "metadata": {
+        "id": "OxPCKlbLvckV"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.schema import Document\n",
+        "\n",
+        "doc1 = Document(\n",
+        "    page_content=\"Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.\",\n",
+        "    metadata={\"team\": \"India\"}\n",
+        ")\n",
+        "\n",
+        "doc2 = Document(\n",
+        "    page_content=\"Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.\",\n",
+        "    metadata={\"team\": \"India\"}\n",
+        ")\n",
+        "\n",
+        "doc3 = Document(\n",
+        "    page_content=\"Cristiano Ronaldo is a Portuguese professional footballer who plays for Portugal and captains the Portugal national team. He is widely considered one of the greatest football players of all time.\",\n",
+        "    metadata={\"team\": \"Portugal\"}\n",
+        ")"
+      ],
+      "metadata": {
+        "id": "EjSr15Zqv1op"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "docs = [doc1, doc2, doc3]"
+      ],
+      "metadata": {
+        "id": "XnWf5JX3w3Kp"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store = Chroma.from_documents(\n",
+        "    documents=docs,\n",
+        "    embedding=HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2'),\n",
+        "    persist_directory=\"chroma-db\",\n",
+        "    collection_name=\"my_collection\"\n",
+        ")"
+      ],
+      "metadata": {
+        "id": "f96MPFhkw8Tz"
+      },
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store.add_documents(docs)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "K90I4qu3xlGQ",
+        "outputId": "9ac41189-1db8-4103-d072-6b0c81f27207"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "['4fd12146-7003-438d-ba19-7beb599c2b60',\n",
+              " '789174cc-7179-4e58-87f0-6d4df2739554',\n",
+              " '297815cd-9fd9-40f2-a1cd-29a833b9f9a1']"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store.get(include=['embeddings', 'documents', 'metadatas'])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "GEJ-hVtAyMNC",
+        "outputId": "fa5120a2-af12-457e-c377-2d343b50e4d9"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'ids': ['af29df64-3641-4762-b362-6942a3f485c0',\n",
+              "  '306308e0-4540-4126-8314-58a050e5e79a',\n",
+              "  '08711ec4-1f60-439a-9415-6c16bde243fc',\n",
+              "  '4fd12146-7003-438d-ba19-7beb599c2b60',\n",
+              "  '789174cc-7179-4e58-87f0-6d4df2739554',\n",
+              "  '297815cd-9fd9-40f2-a1cd-29a833b9f9a1'],\n",
+              " 'embeddings': array([[ 0.0151282 ,  0.05660877, -0.01914188, ...,  0.028539  ,\n",
+              "          0.04170698, -0.01930291],\n",
+              "        [ 0.03308237,  0.0770975 , -0.05565757, ...,  0.00123191,\n",
+              "          0.0227662 , -0.0611668 ],\n",
+              "        [-0.01702521,  0.02109147,  0.00423736, ...,  0.06094275,\n",
+              "          0.02260225, -0.06013291],\n",
+              "        [ 0.0151282 ,  0.05660877, -0.01914188, ...,  0.028539  ,\n",
+              "          0.04170698, -0.01930291],\n",
+              "        [ 0.03308237,  0.0770975 , -0.05565757, ...,  0.00123191,\n",
+              "          0.0227662 , -0.0611668 ],\n",
+              "        [-0.01702521,  0.02109147,  0.00423736, ...,  0.06094275,\n",
+              "          0.02260225, -0.06013291]]),\n",
+              " 'documents': ['Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.',\n",
+              "  'Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.',\n",
+              "  'Cristiano Ronaldo is a Portuguese professional footballer who plays for Portugal and captains the Portugal national team. He is widely considered one of the greatest football players of all time.',\n",
+              "  'Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.',\n",
+              "  'Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.',\n",
+              "  'Cristiano Ronaldo is a Portuguese professional footballer who plays for Portugal and captains the Portugal national team. He is widely considered one of the greatest football players of all time.'],\n",
+              " 'uris': None,\n",
+              " 'included': ['embeddings', 'documents', 'metadatas'],\n",
+              " 'data': None,\n",
+              " 'metadatas': [{'team': 'India'},\n",
+              "  {'team': 'India'},\n",
+              "  {'team': 'Portugal'},\n",
+              "  {'team': 'India'},\n",
+              "  {'team': 'India'},\n",
+              "  {'team': 'Portugal'}]}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 10
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store.similarity_search(\n",
+        "    query=\"Who is the best cricketer in the world?\",\n",
+        "    k=1\n",
+        ")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Eef9ayHTzGfm",
+        "outputId": "19e575e9-9945-4038-cea8-2901318fad44"
+      },
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[Document(metadata={'team': 'India'}, page_content='Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.')]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 14
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store.similarity_search_with_score(\n",
+        "    query=\"Who is the best cricketer in the world?\",\n",
+        "    k=1\n",
+        ")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "MzoCVU5uzt8c",
+        "outputId": "1fd808f0-8c04-473b-b38a-6acfacb4898d"
+      },
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(Document(metadata={'team': 'India'}, page_content='Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.'),\n",
+              "  0.8258206844329834)]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 17
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store.similarity_search_with_score(\n",
+        "    query=\"\",\n",
+        "    filter={\"team\": \"India\"}\n",
+        ")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "SDbNp2gOz-Te",
+        "outputId": "8181ab56-f0d8-4d5c-c175-497fdfd6c0ac"
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[(Document(metadata={'team': 'India'}, page_content='Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.'),\n",
+              "  1.8447089195251465),\n",
+              " (Document(metadata={'team': 'India'}, page_content='Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.'),\n",
+              "  1.8447089195251465),\n",
+              " (Document(metadata={'team': 'India'}, page_content='Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.'),\n",
+              "  1.9033823013305664),\n",
+              " (Document(metadata={'team': 'India'}, page_content='Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.'),\n",
+              "  1.9033823013305664)]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 20
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "update_doc1 = Document(\n",
+        "    page_content=\"Virat Kohli is an Indian cricketer who is former-captain of India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.\",\n",
+        "    metadata={\"team\": \"India\", \"updated\": True}\n",
+        ")\n",
+        "\n",
+        "vector_store.update_document(document_id='af29df64-3641-4762-b362-6942a3f485c0', document=update_doc1)"
+      ],
+      "metadata": {
+        "id": "KnqIB6dB0fgL"
+      },
+      "execution_count": 22,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store.get(include=['embeddings', 'documents', 'metadatas'])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "SW0eR-xk1Vsy",
+        "outputId": "3b94099b-6dc9-4942-c481-533badf4010b"
+      },
+      "execution_count": 23,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'ids': ['af29df64-3641-4762-b362-6942a3f485c0',\n",
+              "  '306308e0-4540-4126-8314-58a050e5e79a',\n",
+              "  '08711ec4-1f60-439a-9415-6c16bde243fc',\n",
+              "  '4fd12146-7003-438d-ba19-7beb599c2b60',\n",
+              "  '789174cc-7179-4e58-87f0-6d4df2739554',\n",
+              "  '297815cd-9fd9-40f2-a1cd-29a833b9f9a1'],\n",
+              " 'embeddings': array([[ 0.01971287,  0.064541  , -0.02126437, ...,  0.03111757,\n",
+              "          0.04376009, -0.01095768],\n",
+              "        [ 0.03308237,  0.0770975 , -0.05565757, ...,  0.00123191,\n",
+              "          0.0227662 , -0.0611668 ],\n",
+              "        [-0.01702521,  0.02109147,  0.00423736, ...,  0.06094275,\n",
+              "          0.02260225, -0.06013291],\n",
+              "        [ 0.0151282 ,  0.05660877, -0.01914188, ...,  0.028539  ,\n",
+              "          0.04170698, -0.01930291],\n",
+              "        [ 0.03308237,  0.0770975 , -0.05565757, ...,  0.00123191,\n",
+              "          0.0227662 , -0.0611668 ],\n",
+              "        [-0.01702521,  0.02109147,  0.00423736, ...,  0.06094275,\n",
+              "          0.02260225, -0.06013291]]),\n",
+              " 'documents': ['Virat Kohli is an Indian cricketer who is former-captain of India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.',\n",
+              "  'Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.',\n",
+              "  'Cristiano Ronaldo is a Portuguese professional footballer who plays for Portugal and captains the Portugal national team. He is widely considered one of the greatest football players of all time.',\n",
+              "  'Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.',\n",
+              "  'Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.',\n",
+              "  'Cristiano Ronaldo is a Portuguese professional footballer who plays for Portugal and captains the Portugal national team. He is widely considered one of the greatest football players of all time.'],\n",
+              " 'uris': None,\n",
+              " 'included': ['embeddings', 'documents', 'metadatas'],\n",
+              " 'data': None,\n",
+              " 'metadatas': [{'team': 'India', 'updated': True},\n",
+              "  {'team': 'India'},\n",
+              "  {'team': 'Portugal'},\n",
+              "  {'team': 'India'},\n",
+              "  {'team': 'India'},\n",
+              "  {'team': 'Portugal'}]}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store.delete(ids=['af29df64-3641-4762-b362-6942a3f485c0'])"
+      ],
+      "metadata": {
+        "id": "A-xHG5_z2cZ-"
+      },
+      "execution_count": 25,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "vector_store.get(include=['embeddings', 'documents', 'metadatas'])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "IFooLyDl2kXr",
+        "outputId": "9a9419da-c4c1-4ccd-aecc-8401bf2e99b4"
+      },
+      "execution_count": 26,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'ids': ['306308e0-4540-4126-8314-58a050e5e79a',\n",
+              "  '08711ec4-1f60-439a-9415-6c16bde243fc',\n",
+              "  '4fd12146-7003-438d-ba19-7beb599c2b60',\n",
+              "  '789174cc-7179-4e58-87f0-6d4df2739554',\n",
+              "  '297815cd-9fd9-40f2-a1cd-29a833b9f9a1'],\n",
+              " 'embeddings': array([[ 0.03308237,  0.0770975 , -0.05565757, ...,  0.00123191,\n",
+              "          0.0227662 , -0.0611668 ],\n",
+              "        [-0.01702521,  0.02109147,  0.00423736, ...,  0.06094275,\n",
+              "          0.02260225, -0.06013291],\n",
+              "        [ 0.0151282 ,  0.05660877, -0.01914188, ...,  0.028539  ,\n",
+              "          0.04170698, -0.01930291],\n",
+              "        [ 0.03308237,  0.0770975 , -0.05565757, ...,  0.00123191,\n",
+              "          0.0227662 , -0.0611668 ],\n",
+              "        [-0.01702521,  0.02109147,  0.00423736, ...,  0.06094275,\n",
+              "          0.02260225, -0.06013291]]),\n",
+              " 'documents': ['Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.',\n",
+              "  'Cristiano Ronaldo is a Portuguese professional footballer who plays for Portugal and captains the Portugal national team. He is widely considered one of the greatest football players of all time.',\n",
+              "  'Virat Kohli is an Indian cricketer who currently captains the India national team. A right-handed top-order batsman, Kohli is regarded as one of the best batsmen in the world.',\n",
+              "  'Sachin Tendulkar is an Indian former international cricketer who served as the captain of the Indian national team. He is widely regarded as one of the greatest batsmen in the world.',\n",
+              "  'Cristiano Ronaldo is a Portuguese professional footballer who plays for Portugal and captains the Portugal national team. He is widely considered one of the greatest football players of all time.'],\n",
+              " 'uris': None,\n",
+              " 'included': ['embeddings', 'documents', 'metadatas'],\n",
+              " 'data': None,\n",
+              " 'metadatas': [{'team': 'India'},\n",
+              "  {'team': 'Portugal'},\n",
+              "  {'team': 'India'},\n",
+              "  {'team': 'India'},\n",
+              "  {'team': 'Portugal'}]}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 26
+        }
+      ]
+    }
+  ]
+}
